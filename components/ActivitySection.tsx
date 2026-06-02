@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, MapPin, Calendar } from 'lucide-react'
 import { useState, useEffect } from 'react'
