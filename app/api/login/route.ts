@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 
+const adminPassword = process.env.ADMIN_PASSWORD || ''
+
 export async function POST(request: Request) {
   const { password } = await request.json()
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123456'
+
+  if (!adminPassword) {
+    return NextResponse.json({ success: false, error: '服务器未配置密码' }, { status: 500 })
+  }
 
   if (password === adminPassword) {
     const response = NextResponse.json({ success: true })
