@@ -1,36 +1,27 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Calendar, Clock } from 'lucide-react'
+import { ArrowRight, Calendar } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
-const newsItems = [
-  {
-    id: 1,
-    title: '信息工程学院团总支换届大会圆满举行',
-    date: '2024-05-20',
-    category: '团学动态',
-    excerpt: '新一届团总支成员正式就职，开启服务同学新征程...',
-    color: 'bg-primary-500',
-  },
-  {
-    id: 2,
-    title: '"代码马拉松"编程比赛报名开启',
-    date: '2024-05-18',
-    category: '活动预告',
-    excerpt: '48小时极限编程挑战，丰厚奖品等你来拿...',
-    color: 'bg-accent-orange',
-  },
-  {
-    id: 3,
-    title: '志愿服务队走进社区开展电脑维修活动',
-    date: '2024-05-15',
-    category: '志愿服务',
-    excerpt: '为社区居民免费维修电脑，普及网络安全知识...',
-    color: 'bg-accent-purple',
-  },
-]
+interface NewsItem {
+  id: number
+  title: string
+  date: string
+  category: string
+  excerpt?: string
+  content?: string
+}
 
 export default function NewsSection() {
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+
+  useEffect(() => {
+    fetch('/api/news/')
+      .then(res => res.json())
+      .then(data => setNewsItems(data?.slice(0, 3) || []))
+  }, [])
+
   return (
     <section className="section-padding bg-white">
       <div className="max-w-7xl mx-auto">
@@ -47,10 +38,10 @@ export default function NewsSection() {
         <div className="grid md:grid-cols-3 gap-6">
           {newsItems.map((item) => (
             <article key={item.id} className="group bg-gray-50 rounded-2xl overflow-hidden card-hover">
-              <div className={`h-2 ${item.color}`} />
+              <div className="h-2 bg-primary-500" />
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-3 text-sm text-gray-500">
-                  <span className={`px-3 py-1 rounded-full text-white text-xs ${item.color}`}>
+                  <span className="px-3 py-1 rounded-full text-white text-xs bg-primary-500">
                     {item.category}
                   </span>
                   <div className="flex items-center gap-1">
@@ -61,8 +52,10 @@ export default function NewsSection() {
                 <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.excerpt}</p>
-                <Link href={`/news/`} className="inline-flex items-center gap-1 text-primary-600 font-medium text-sm hover:gap-2 transition-all">
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {item.excerpt || (item.content ? item.content.slice(0, 80) + '...' : '')}
+                </p>
+                <Link href="/news/" className="inline-flex items-center gap-1 text-primary-600 font-medium text-sm hover:gap-2 transition-all">
                   阅读全文 <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
