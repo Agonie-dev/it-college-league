@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Heart, MessageCircle, Share2, Calendar, ImageIcon } from 'lucide-react'
+import { ArrowLeft, Heart, MessageCircle, Share2, Calendar, ImageIcon, X, ZoomIn } from 'lucide-react'
 
 interface Moment {
   id: number
@@ -14,6 +14,7 @@ interface Moment {
 export default function MomentsPage() {
   const [moments, setMoments] = useState<Moment[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedMoment, setSelectedMoment] = useState<Moment | null>(null)
 
   useEffect(() => {
     fetch('/api/moments/')
@@ -67,7 +68,11 @@ export default function MomentsPage() {
         ) : (
           <div className="space-y-4">
             {moments.map(moment => (
-              <article key={moment.id} className="bg-white rounded-2xl shadow-sm overflow-hidden card-hover">
+              <article 
+                key={moment.id} 
+                className="bg-white rounded-2xl shadow-sm overflow-hidden card-hover cursor-pointer"
+                onClick={() => setSelectedMoment(moment)}
+              >
                 {/* User info bar */}
                 <div className="p-4 flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-purple rounded-full flex items-center justify-center">
@@ -84,7 +89,7 @@ export default function MomentsPage() {
 
                 {/* Content */}
                 <div className="px-4 pb-3">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{moment.content}</p>
+                  <p className="text-gray-800 leading-relaxed line-clamp-3">{moment.content}</p>
                 </div>
 
                 {/* Image */}
@@ -93,31 +98,102 @@ export default function MomentsPage() {
                     <img 
                       src={moment.image_url} 
                       alt="动态图片" 
-                      className="w-full rounded-xl object-cover max-h-96"
+                      className="w-full rounded-xl object-cover max-h-80"
                     />
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="px-4 py-3 border-t border-gray-50 flex items-center gap-6 text-gray-500">
-                  <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
-                    <Heart className="w-5 h-5" />
-                    <span className="text-sm">赞</span>
-                  </button>
-                  <button className="flex items-center gap-1 hover:text-primary-600 transition-colors">
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="text-sm">评论</span>
-                  </button>
-                  <button className="flex items-center gap-1 hover:text-primary-600 transition-colors ml-auto">
-                    <Share2 className="w-5 h-5" />
-                    <span className="text-sm">分享</span>
-                  </button>
+                {/* Click hint */}
+                <div className="px-4 py-2 border-t border-gray-50 flex items-center justify-between text-gray-400 text-sm">
+                  <span className="flex items-center gap-1">
+                    <ZoomIn className="w-4 h-4" />
+                    点击查看详情
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="flex items-center gap-1 hover:text-red-500 transition-colors">
+                      <Heart className="w-5 h-5" />
+                    </span>
+                    <span className="flex items-center gap-1 hover:text-primary-600 transition-colors">
+                      <MessageCircle className="w-5 h-5" />
+                    </span>
+                    <span className="flex items-center gap-1 hover:text-primary-600 transition-colors">
+                      <Share2 className="w-5 h-5" />
+                    </span>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      {selectedMoment && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto"
+          onClick={() => setSelectedMoment(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-8 overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-purple rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">团</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">信息工程学院团总支</h3>
+                  <div className="flex items-center gap-1 text-gray-400 text-xs">
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(selectedMoment.created_at)}
+                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedMoment(null)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 space-y-4">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">
+                {selectedMoment.content}
+              </p>
+
+              {selectedMoment.image_url && (
+                <div className="rounded-xl overflow-hidden">
+                  <img 
+                    src={selectedMoment.image_url} 
+                    alt="动态图片" 
+                    className="w-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-6 text-gray-500">
+              <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
+                <Heart className="w-5 h-5" />
+                <span className="text-sm">赞</span>
+              </button>
+              <button className="flex items-center gap-1 hover:text-primary-600 transition-colors">
+                <MessageCircle className="w-5 h-5" />
+                <span className="text-sm">评论</span>
+              </button>
+              <button className="flex items-center gap-1 hover:text-primary-600 transition-colors ml-auto">
+                <Share2 className="w-5 h-5" />
+                <span className="text-sm">分享</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
