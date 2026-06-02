@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, Flame } from 'lucide-react'
+import { Menu, X, Flame, Settings } from 'lucide-react'
 
 const navItems = [
   { label: '首页', href: '/' },
@@ -44,6 +44,14 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/admin/login/"
+              className="ml-2 px-3 py-2 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-primary-50 
+                         transition-all duration-200 text-sm flex items-center gap-1"
+            >
+              <Settings className="w-4 h-4" />
+              后台
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -71,6 +79,15 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/admin/login/"
+              onClick={() => setIsOpen(false)}
+              className="block px-4 py-3 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-primary-50 
+                         transition-all duration-200 text-sm flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              管理后台
+            </Link>
           </div>
         </div>
       )}
