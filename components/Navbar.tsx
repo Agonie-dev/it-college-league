@@ -6,6 +6,7 @@ import { Menu, X, Flame } from 'lucide-react'
 
 const navItems = [
   { label: '首页', href: '/' },
+  { label: '动态', href: '/moments/' },
   { label: '新闻动态', href: '/news/' },
   { label: '部门介绍', href: '/departments/' },
   { label: '活动风采', href: '/activities/' },
