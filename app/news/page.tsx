@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, ArrowLeft } from 'lucide-react'
+import { Calendar, ArrowLeft, X, ZoomIn } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -15,6 +15,7 @@ interface NewsItem {
 export default function NewsPage() {
   const [newsList, setNewsList] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
 
   useEffect(() => {
     fetch('/api/news/')
@@ -54,7 +55,11 @@ export default function NewsPage() {
             </div>
           ) : (
             newsList.map((news) => (
-              <article key={news.id} className="bg-white rounded-2xl p-6 shadow-sm card-hover">
+              <article 
+                key={news.id} 
+                className="bg-white rounded-2xl p-6 shadow-sm card-hover cursor-pointer"
+                onClick={() => setSelectedNews(news)}
+              >
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
                     {news.category}
@@ -65,12 +70,56 @@ export default function NewsPage() {
                   </div>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">{news.title}</h2>
-                <p className="text-gray-600 leading-relaxed">{news.content}</p>
+                <p className="text-gray-600 leading-relaxed line-clamp-3">{news.content}</p>
+                <div className="mt-3 flex items-center gap-1 text-gray-400 text-sm">
+                  <ZoomIn className="w-4 h-4" />
+                  点击查看详情
+                </div>
               </article>
             ))
           )}
         </div>
       </div>
+
+      {/* Detail Modal */}
+      {selectedNews && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto"
+          onClick={() => setSelectedNews(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 p-6 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                  {selectedNews.category}
+                </span>
+                <div className="flex items-center gap-1 text-gray-500 text-sm">
+                  <Calendar className="w-4 h-4" />
+                  {selectedNews.date}
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedNews(null)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              <h2 className="text-2xl font-bold text-gray-900">{selectedNews.title}</h2>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {selectedNews.content}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
